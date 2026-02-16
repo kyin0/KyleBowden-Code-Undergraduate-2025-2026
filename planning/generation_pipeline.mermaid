@@ -1,0 +1,56 @@
+sequenceDiagram
+    autonumber
+
+    actor Researcher
+    participant Orchestrator
+    participant KB as KnowledgeBase
+    participant LLM
+    participant Static as StaticChecker
+    participant Sandbox
+    participant Eval
+    participant Database
+
+    Researcher->>Orchestrator: run_experiment(TaskSpec, StrategyConfig)
+
+    opt Retrieval enabled
+        Orchestrator->>KB: retrieve(TaskSpec)
+        KB-->>Orchestrator: ContextPack
+    end
+
+    Orchestrator->>LLM: generate_blueprint(TaskSpec, ContextPack)
+    LLM-->>Orchestrator: AgentBlueprint
+
+    Orchestrator->>LLM: generate_code(AgentBlueprint, ContextPack)
+    LLM-->>Orchestrator: CodeBundle
+
+    loop Repair Loop (max N iterations)
+
+        Orchestrator->>Static: validate(CodeBundle)
+        Static-->>Orchestrator: Diagnostics
+
+        alt Static Pass
+
+            Orchestrator->>Sandbox: run(CodeBundle, ScenarioSuite)
+            Sandbox-->>Orchestrator: RunTrace + RuntimeResult
+
+            alt Runtime Pass
+                Note over Orchestrator: Exit loop (success)
+            else Runtime Fail
+                Orchestrator->>LLM: patch_code(RuntimeError, Trace)
+                LLM-->>Orchestrator: Patch
+            end
+
+        else Static Fail
+            Orchestrator->>LLM: patch_code(Diagnostics)
+            LLM-->>Orchestrator: Patch
+        end
+
+    end
+
+    Orchestrator->>Eval: score(RunTrace, MetricsConfig)
+    Eval-->>Orchestrator: MetricsReport
+
+    Orchestrator->>Database: save(all artifacts)
+    Database-->>Orchestrator: ResultID
+
+    Orchestrator-->>Researcher: experiment_complete(ResultID)
