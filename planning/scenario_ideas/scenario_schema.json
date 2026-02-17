@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "task_id": "string",
+  "title": "string",
+  "domain": "string",
+  "description": "string",
+
+  "environment": {
+    "type": "string",
+    "name": "string",
+    "channel": "string",
+    "initial_state": {},
+    "percepts": [
+      {
+        "name": "string",
+        "args": ["string"],
+        "scope": "string",
+        "generation": {}
+      }
+    ],
+    "actions": [
+      {
+        "name": "string",
+        "invoked_by": "string",
+        "preconditions": [],
+        "effects": []
+      }
+    ],
+    "dynamics": {
+      "step_limit": 0,
+      "notes": "string"
+    }
+  },
+
+  "agents": [
+    {
+      "id": "string",
+      "type": "string",
+      "role": "string",
+      "count": 1,
+      "initial_beliefs": [],
+      "initial_goals": [],
+      "triggers": [
+        {
+          "when": "gain_belief|gain_goal|gain_percept",
+          "content": { "kind": "Belief|Goal|Percept", "name": "string", "args": ["string"], "scope": "string" },
+          "handler": "string"
+        }
+      ],
+      "behaviors": [
+        {
+          "name": "string",
+          "steps": [
+            { "op": "string", "params": {} }
+          ],
+          "stop_cycle_after": false
+        }
+      ]
+    }
+  ],
+
+  "communication": {
+    "channels": [
+      { "name": "string", "semantics": "string" }
+    ],
+    "message_types": ["string"]
+  },
+
+  "termination": {
+    "mode": "event_driven|step_limit",
+    "step_limit": 0,
+    "stop_conditions": ["string"]
+  },
+
+  "success_criteria": [
+    { "name": "string", "definition": "string" }
+  ],
+
+  "metrics": {
+    "primary": [
+      { "name": "string", "definition": "string" }
+    ],
+    "secondary": [
+      { "name": "string", "definition": "string" }
+    ]
+  },
+
+  "seeds": {
+    "scenario_seed": 0
+  },
+
+  "baseline": {
+    "exists": false,
+    "reference": "string",
+    "notes": "string"
+  }
+}
