@@ -1,0 +1,8 @@
+llm:
+  MODEL: llama3
+  TEMPERATURE: 0
+  TOP_K: 1
+  TOP_P: 1
+  SEED: 42
+  TIMEOUT_SECONDS: 60
+  LLM_ENDPOINT: http://localhost:11434/api/generate
