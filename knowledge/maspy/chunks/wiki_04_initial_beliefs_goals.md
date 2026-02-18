@@ -1,6 +1,6 @@
 ID: wiki_04_initial_beliefs_goals
 SOURCE: maspy_wiki
-TAGS: Intentions, Beliefs, Initial
+TAGS: agent, belief, goal, init, event
 TITLE: Initial Beliefs and Goals
 
 The agent can start with some inital Beliefs or Goals.

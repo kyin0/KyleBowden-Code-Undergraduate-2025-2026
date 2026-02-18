@@ -1,7 +1,7 @@
 ID: wiki_02_about_maspy
 SOURCE: maspy_wiki
-TAGS: info, about, theory
-TITLE: About MASPY
+TAGS: agent, environment, communication, admin, learning, system_start
+TITLE: About MASPY Framework
 
 The MASPY Framework is made of five main classes.
 

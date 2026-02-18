@@ -1,0 +1,499 @@
+﻿{
+    "corpus":  "maspy",
+    "version":  "1.0",
+    "chunk_count":  28,
+    "chunks":  [
+                   {
+                       "id":  "wiki_01_using_maspy",
+                       "path":  "chunks/wiki_01_using_maspy.md",
+                       "source":  "maspy_wiki",
+                       "title":  "Using MASPY Import",
+                       "tags":  [
+                                    "init",
+                                    "system_start",
+                                    "agent",
+                                    "environment",
+                                    "communication",
+                                    "admin"
+                                ],
+                       "file_type":  "md"
+                   },
+                   {
+                       "id":  "wiki_02_about_maspy",
+                       "path":  "chunks/wiki_02_about_maspy.md",
+                       "source":  "maspy_wiki",
+                       "title":  "About MASPY Framework",
+                       "tags":  [
+                                    "agent",
+                                    "environment",
+                                    "communication",
+                                    "admin",
+                                    "learning",
+                                    "system_start"
+                                ],
+                       "file_type":  "md"
+                   },
+                   {
+                       "id":  "wiki_03_creating_agent",
+                       "path":  "chunks/wiki_03_creating_agent.md",
+                       "source":  "maspy_wiki",
+                       "title":  "Creating an Agent",
+                       "tags":  [
+                                    "agent",
+                                    "init",
+                                    "belief",
+                                    "goal",
+                                    "pl",
+                                    "plan"
+                                ],
+                       "file_type":  "md"
+                   },
+                   {
+                       "id":  "wiki_04_initial_beliefs_goals",
+                       "path":  "chunks/wiki_04_initial_beliefs_goals.md",
+                       "source":  "maspy_wiki",
+                       "title":  "Initial Beliefs and Goals",
+                       "tags":  [
+                                    "agent",
+                                    "belief",
+                                    "goal",
+                                    "init",
+                                    "event"
+                                ],
+                       "file_type":  "md"
+                   },
+                   {
+                       "id":  "wiki_05_managing_beliefs_goals",
+                       "path":  "chunks/wiki_05_managing_beliefs_goals.md",
+                       "source":  "maspy_wiki",
+                       "title":  "Managing Beliefs and Goals",
+                       "tags":  [
+                                    "agent",
+                                    "belief",
+                                    "goal",
+                                    "gain",
+                                    "lose",
+                                    "event"
+                                ],
+                       "file_type":  "md"
+                   },
+                   {
+                       "id":  "wiki_06_defining_plans",
+                       "path":  "chunks/wiki_06_defining_plans.md",
+                       "source":  "maspy_wiki",
+                       "title":  "Defining Plans",
+                       "tags":  [
+                                    "agent",
+                                    "pl",
+                                    "plan",
+                                    "gain",
+                                    "lose",
+                                    "belief",
+                                    "goal",
+                                    "event"
+                                ],
+                       "file_type":  "md"
+                   },
+                   {
+                       "id":  "wiki_07_running_agents",
+                       "path":  "chunks/wiki_07_running_agents.md",
+                       "source":  "maspy_wiki",
+                       "title":  "Running Agents",
+                       "tags":  [
+                                    "agent",
+                                    "admin",
+                                    "scheduler",
+                                    "system_start",
+                                    "environment",
+                                    "communication"
+                                ],
+                       "file_type":  "md"
+                   },
+                   {
+                       "id":  "wiki_08_agent_communication",
+                       "path":  "chunks/wiki_08_agent_communication.md",
+                       "source":  "maspy_wiki",
+                       "title":  "Communication Between Agents",
+                       "tags":  [
+                                    "agent",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "achieve",
+                                    "tell"
+                                ],
+                       "file_type":  "md"
+                   },
+                   {
+                       "id":  "wiki_09_environment",
+                       "path":  "chunks/wiki_09_environment.md",
+                       "source":  "maspy_wiki",
+                       "title":  "Environment",
+                       "tags":  [
+                                    "environment",
+                                    "perception",
+                                    "event",
+                                    "agent",
+                                    "admin"
+                                ],
+                       "file_type":  "md"
+                   },
+                   {
+                       "id":  "ex_01_askOneReply",
+                       "path":  "chunks/ex_01_askOneReply.py",
+                       "source":  "maspy_examples",
+                       "title":  "AskOneReply Query Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "belief",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "ask_one_reply"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_02_buying_a_trip",
+                       "path":  "chunks/ex_02_buying_a_trip.py",
+                       "source":  "maspy_examples",
+                       "title":  "Buying a Trip Negotiation Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "belief",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "achieve"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_03_contract_net",
+                       "path":  "chunks/ex_03_contract_net.py",
+                       "source":  "maspy_examples",
+                       "title":  "Contract Net Negotiation Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "belief",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "achieve"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_04_crossing",
+                       "path":  "chunks/ex_04_crossing.py",
+                       "source":  "maspy_examples",
+                       "title":  "Crossing Coordination Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "perception",
+                                    "belief",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "communication",
+                                    "send",
+                                    "achieve"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_05_garbage_cleaner",
+                       "path":  "chunks/ex_05_garbage_cleaner.py",
+                       "source":  "maspy_examples",
+                       "title":  "Garbage Cleaner Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "perception",
+                                    "belief",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "achieve",
+                                    "event"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_06_hello_world",
+                       "path":  "chunks/ex_06_hello_world.py",
+                       "source":  "maspy_examples",
+                       "title":  "Hello World Agent Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "belief",
+                                    "pl",
+                                    "plan",
+                                    "gain",
+                                    "system_start"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_07_learn_instructor",
+                       "path":  "chunks/ex_07_learn_instructor.py",
+                       "source":  "maspy_examples",
+                       "title":  "Learning with Instructor Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "learning",
+                                    "belief",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "communication",
+                                    "send"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_08_learn_lever",
+                       "path":  "chunks/ex_08_learn_lever.py",
+                       "source":  "maspy_examples",
+                       "title":  "Lever Learning Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "learning",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "perception"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_09_learn_lightswitch",
+                       "path":  "chunks/ex_09_learn_lightswitch.py",
+                       "source":  "maspy_examples",
+                       "title":  "Light Switch Learning Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "learning",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "perception"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_10_learn_object",
+                       "path":  "chunks/ex_10_learn_object.py",
+                       "source":  "maspy_examples",
+                       "title":  "Object Sorting Learning Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "learning",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "perception"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_11_learn_taxi",
+                       "path":  "chunks/ex_11_learn_taxi.py",
+                       "source":  "maspy_examples",
+                       "title":  "Taxi Learning Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "learning",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "perception",
+                                    "event"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_12_move_boxes",
+                       "path":  "chunks/ex_12_move_boxes.py",
+                       "source":  "maspy_examples",
+                       "title":  "Move Boxes Goal Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "belief",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "achieve"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_13_parking",
+                       "path":  "chunks/ex_13_parking.py",
+                       "source":  "maspy_examples",
+                       "title":  "Parking Negotiation Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "belief",
+                                    "goal",
+                                    "pl",
+                                    "plan",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "achieve",
+                                    "perception"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_14_sample_messages",
+                       "path":  "chunks/ex_14_sample_messages.py",
+                       "source":  "maspy_examples",
+                       "title":  "Sample Messaging Patterns Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "tell",
+                                    "achieve",
+                                    "pl",
+                                    "plan",
+                                    "goal",
+                                    "belief"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_15_send_receive",
+                       "path":  "chunks/ex_15_send_receive.py",
+                       "source":  "maspy_examples",
+                       "title":  "Send and Receive Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "achieve",
+                                    "pl",
+                                    "plan",
+                                    "goal",
+                                    "belief"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_16_simple_negotiation",
+                       "path":  "chunks/ex_16_simple_negotiation.py",
+                       "source":  "maspy_examples",
+                       "title":  "Simple Negotiation Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "belief",
+                                    "goal",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "achieve",
+                                    "pl",
+                                    "plan"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_17_simple_system",
+                       "path":  "chunks/ex_17_simple_system.py",
+                       "source":  "maspy_examples",
+                       "title":  "Simple System Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "goal",
+                                    "belief",
+                                    "pl",
+                                    "plan",
+                                    "system_start"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_18_take_insert",
+                       "path":  "chunks/ex_18_take_insert.py",
+                       "source":  "maspy_examples",
+                       "title":  "Take Insert Messaging Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "goal",
+                                    "belief",
+                                    "pl",
+                                    "plan",
+                                    "system_start"
+                                ],
+                       "file_type":  "py"
+                   },
+                   {
+                       "id":  "ex_19_traffic_light",
+                       "path":  "chunks/ex_19_traffic_light.py",
+                       "source":  "maspy_examples",
+                       "title":  "Traffic Light Coordination Example",
+                       "tags":  [
+                                    "example",
+                                    "agent",
+                                    "environment",
+                                    "perception",
+                                    "communication",
+                                    "send",
+                                    "message",
+                                    "achieve",
+                                    "belief",
+                                    "goal",
+                                    "pl",
+                                    "plan"
+                                ],
+                       "file_type":  "py"
+                   }
+               ]
+}

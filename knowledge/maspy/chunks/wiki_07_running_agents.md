@@ -1,7 +1,7 @@
 ID: wiki_07_running_agents
 SOURCE: maspy_wiki
-TAGS: Running agents, agents
-TITLE: Running the agents
+TAGS: agent, admin, scheduler, system_start, environment, communication
+TITLE: Running Agents
 
 Running the system is simple, given the utilities support we have in place. The Admin module contains a few useful methods to start and manage the system.
 

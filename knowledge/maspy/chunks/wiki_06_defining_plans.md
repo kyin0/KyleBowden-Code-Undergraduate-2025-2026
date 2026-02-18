@@ -1,7 +1,7 @@
 ID: wiki_06_defining_plans
 SOURCE: maspy_wiki
-TAGS: Plans, Plan definition
-TITLE: Defining plans
+TAGS: agent, pl, plan, gain, lose, belief, goal, event
+TITLE: Defining Plans
 
 To define plans it is also really simple, it only needs the @pl decoration. This decoration must contain the plan change {gain, lose or test}, the data that changed {Belief(s) or Goal(s)} and optionally a context needed to be true to execute the plan {Belief(s) or Goal(s)}.
 

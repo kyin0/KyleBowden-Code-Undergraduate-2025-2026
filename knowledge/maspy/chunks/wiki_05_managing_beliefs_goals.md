@@ -1,6 +1,6 @@
 ID: wiki_05_managing_beliefs_goals
 SOURCE: maspy_wiki
-TAGS: Management, Beliefs, Goals
+TAGS: agent, belief, goal, gain, lose, event
 TITLE: Managing Beliefs and Goals
 
 Here are some info about Beliefs and Goals being created and removed.

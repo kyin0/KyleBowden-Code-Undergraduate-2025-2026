@@ -1,7 +1,7 @@
 ID: wiki_03_creating_agent
 SOURCE: maspy_wiki
-TAGS: Creating agent, creation
-TITLE: Creating a new Agent
+TAGS: agent, init, belief, goal, pl, plan
+TITLE: Creating an Agent
 
 To create a new agent, you only need to extend Agent in your class, this adds all of the necessary logic to execute an agent. the following snippet shows how to create an DummyAgent.
 

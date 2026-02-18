@@ -1,6 +1,6 @@
 ID: wiki_09_environment
 SOURCE: maspy_wiki
-TAGS: Environment
+TAGS: environment, perception, event, agent, admin
 TITLE: Environment
 
 MASPY also gives an abstraction to model the environment.

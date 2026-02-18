@@ -1,7 +1,7 @@
 ID: wiki_08_agent_communication
 SOURCE: maspy_wiki
-TAGS: Agent communication, communicatioin, agent
-TITLE:Communication between Agents
+TAGS: agent, communication, send, message, achieve, tell
+TITLE: Communication Between Agents
 
 After starting the agents they may use the default channel or be connected to private one.
 

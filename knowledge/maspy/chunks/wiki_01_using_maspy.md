@@ -1,7 +1,7 @@
 ID: wiki_01_using_maspy
 SOURCE: maspy_wiki
-TAGS: import, using
-TITLE: Using MASPY
+TAGS: init, system_start, agent, environment, communication, admin
+TITLE: Using MASPY Import
 
 Using MASPY
 Import
