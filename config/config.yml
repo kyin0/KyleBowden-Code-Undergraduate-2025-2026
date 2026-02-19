@@ -1,5 +1,5 @@
 llm:
-  MODEL: llama3
+  MODEL: qwen2.5-coder:7b
   TEMPERATURE: 0
   TOP_K: 1
   TOP_P: 1
