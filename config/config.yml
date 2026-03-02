@@ -1,8 +1,8 @@
 llm:
-  MODEL: qwen2.5-coder:7b
-  TEMPERATURE: 0
-  TOP_K: 1
-  TOP_P: 1
+  MODEL: qwen2.5-coder:32b
+  TEMPERATURE: 0.2
+  TOP_K: 50
+  TOP_P: 0.8
   SEED: 42
-  TIMEOUT_SECONDS: 60
+  TIMEOUT_SECONDS: 900
   LLM_ENDPOINT: http://localhost:11434/api/generate

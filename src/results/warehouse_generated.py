@@ -1,53 +1,35 @@
 from maspy import *
 
-class Picker(Agent):
-    def __init__(self, agent_name=None):
-        super().__init__(agent_name)
-        self.add(Belief("packages", [], adds_event=False))
-        self.add(Goal("pick_package", (), source="self"))
+class CoinCollector(Agent):
+    def __init__(self, agt_name=None):
+        super().__init__(agt_name)
+        self.coins_collected = 0
+        self.add(Goal("collect_coins"))
 
-    @pl(gain=Goal("pick_package"))
-    def pick_package(self, src):
-        if not self.get_belief("packages"):
-            self.print("No packages to pick.")
-            self.stop_cycle()
+    @pl(gain, Goal("collect_coins"))
+    def collect_coin(self, src):
+        if self.coins_collected < 3:
+            self.coins_collected += 1
+            self.print(f"Coin collected! Total coins: {self.coins_collected}")
+            self.add(Goal("collect_coins"))  # Continue collecting until the goal is met
         else:
-            package = self.get_belief("packages").pop(0)
-            self.add(Belief("current_package", package))
-            self.print(f"Picked package: {package}")
-            self.rm(Goal("pick_package"))
-            self.add(Goal("deliver_package", (), source="self"))
-
-class Deliverer(Agent):
-    def __init__(self, agent_name=None):
-        super().__init__(agent_name)
-        self.add(Belief("current_package", None, adds_event=False))
-        self.add(Goal("deliver_package", (), source="self"))
-
-    @pl(gain=Goal("deliver_package"))
-    def deliver_package(self, src):
-        if not self.get_belief("current_package"):
-            self.print("No package to deliver.")
+            self.print("Goal achieved: Collected 3 coins!")
             self.stop_cycle()
-        else:
-            package = self.get_belief("current_package")
-            self.print(f"Delivered package: {package}")
-            self.rm(Goal("deliver_package"))
-            self.add(Belief("current_package", None))
 
-class PickerEnvironment(Environment):
-    def __init__(self):
-        super().__init__()
-        self.packages = ["Package1", "Package2", "Package3"]
+class CoinEnvironment(Environment):
+    def __init__(self, agt_name=None):
+        super().__init__(agt_name)
 
-    def perceive(self, agent):
-        if isinstance(agent, Picker) and not agent.get_belief("packages"):
-            agent.add(Belief("packages", self.packages.copy(), source="environment"))
+    def spawn_coin(self, agt):
+        self.create(Percept("coin"))
 
 if __name__ == "__main__":
-    picker_env = PickerEnvironment()
-    picker1 = Picker("Picker1")
-    deliverer1 = Deliverer("Deliverer1")
+    collector = CoinCollector()
+    env = CoinEnvironment()
 
-    Admin().connect_to([picker1, deliverer1], picker_env)
+    # Simulate coin spawning
+    for _ in range(4):  # Spawn more coins than needed to test stopping condition
+        env.spawn_coin(collector)
+
+    Admin().connect_to([collector], env)
     Admin().start_system()

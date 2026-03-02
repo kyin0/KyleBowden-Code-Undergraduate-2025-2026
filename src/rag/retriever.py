@@ -23,7 +23,7 @@ def score_chunk(chunk : dict, query_tokens : list[str]) -> float:
         if token in chunk_title_tokens:
             score += 2.0
         
-        score +- 0.1 * text_counts.get(token, 0)
+        score += 0.1 * text_counts.get(token, 0)
     
     return score
 

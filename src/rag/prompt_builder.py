@@ -16,30 +16,62 @@ def build_prompt(task_specification : dict, chunks : list[dict]) -> str:
     agents = []
 
     for i in range(len(task_specification["agents"])):
-        agents.append(task_specification["agents"][i]["id"])
+        agents.append(task_specification["agents"][i]["type"])
 
-    prompt = "You are an expert Python developer generating MASPY BDI multi-agent code. TASK SPECIFICATION (JSON): "
+    query = f"{task_specification['id']},{task_specification['title']},{task_specification['domain']},{task_specification['desc']}" 
+    retrieved_chunks = retrieve(chunks, query, 3)
 
-    prompt = f"{prompt}{task_specification}"
+    task_json = json.dumps(task_specification, indent=2, sort_keys=True)
 
-    prompt = f"{prompt} You must implement THIS EXACT task specification, not any unrelated MASPY example. DO NOT output placeholder demo agents (e.g., Hello World, DummyAgent, MASPYAgent). If you cannot comply using CONTEXT only, output exactly: FAIL. HARD CONSTRAINTS: Use only MASPY APIs and patterns shown in the context section below. Do not invent MASPY decorators, classes, functions, or parameters that are not present in CONTEXT. Output ONLY Python code (no markdown, no explanations). "
+    prompt = f"""
+        == ROLE ==
+        Generate a MASPY program in Python.
 
-    prompt = f"{prompt} OUTPUT REQUIREMENTS: Provide a minimal runnable MASPY program. Define the environment (if applicable in MASPY patterns show CONTEXT)."
+        == OUTPUT ==
+        - Output ONLY Python code (no prose).
+        - First token must be: from maspy import *
+        - If any rule cannot be satisfied, output exactly: FAIL
+        - After the final line of Python code, output nothing. Do not add summaries. Add zero text that isn't Python code.
 
-    prompt = f"{prompt} SYSTEM START REQUIRMENT: If the task spec includes an environment, toy MUST define an Environment sublass, instanitate it, and call: Admin().connect_to(agent_list, env_instance). NEVER call Admin().connect_to(..., None). connect_to expects an Environment or Channel. Then call Admin().start_system()."
+        == ABSOLUTE RULES ==
+        A) Plans:
+        - Only @pl(gain, ...) is allowed.
+        - @pl(...) may reference ONLY Goal(...) and/or Belief(...). Never Percept(...).
+        - No keyword args in @pl (no "=" in decorator).
 
-    if len(agents) > 0:
-        prompt = f"{prompt} Define the following agents: {agents}."
+        B) Percepts:
+        - Percept(...) may appear ONLY inside Environment methods and ONLY in: create/get/change/remove.
+        - Percept payload must be: Percept("name", values_tuple=(...))
+        - Never use dict payloads. Never use Any inside Percept(...).
 
-    prompt = f"{prompt}Use appropriate plan triggers for belief/goal/percept changes as demonstrated in CONTEXT. Start the system using the pattern shown in CONTEXT. Keep code concise and aligned with examples."
+        C) Agents:
+        - Agent code must NEVER contain Percept(...).
+        - Agent code must NEVER call: has(, get(, update(, delete(, wait(, sleep(, log(
+        - Agent counters/progress MUST use Python attributes (e.g. self.coins_collected). Do NOT use beliefs for counters.
 
-    query = f"{task_specification['task_id']},{task_specification['title']},{task_specification['domain']},{task_specification['description']}"
+        D) Connect:
+        - Must call exactly: Admin().connect_to([agents...], env_instance)
+        - Then: Admin().start_system()
 
-    retrieved_chunks = retrieve(chunks, query)
+        == FORBIDDEN TOKENS (MUST NOT APPEAR ANYWHERE) ==
+        has(
+        get(
+        update
+        delete(
+        wait(
+        sleep(
+        log(
 
-    prompt = f"{prompt}CONTEXT (retrieved MASPY docs/examples): Below are trusted snippets from MASPY documentation and official examples. Follow these to understand how MASPY works: {retrieved_chunks}"
+        == TASK ==
+        BEGIN TASK
+        {task_json}
+        END TASK
 
-    prompt = f"{prompt} Using the task specification and provided context, generate MASPY agent code now. Remember: ONLY Python code, no invented APIs. Ensure your entire response is ONLY the Python code. Do NOT include any plain English. Your response will go directly into a .py file. Do NOT include any backticks before or after your response. Ensure every library you use is properly imported at the start of your code. ENSURE THAT YOU FOLLOW THE TASK SPECIFICATION. DEFINE ALL AGENTS SPECIFIED. DEFINE THE EXACT ENVIRONMENT SPECIFIED. DEFINE EVERY ACTION SPECIFIED. ETC."
+        == CONTEXT ==
+        BEGIN CONTEXT
+        {retrieved_chunks}
+        END CONTEXT
+        """
 
     return prompt
 
@@ -58,7 +90,7 @@ if __name__ == "__main__":
 
     from llm.llm import LLM
 
-    task_path = project_root / "planning" / "scenario_ideas" / "warehouse.json"
+    task_path = project_root / "planning" / "scenario_ideas" / "coin_collector.json"
     corpus_path = project_root / "knowledge" / "maspy"
     results_path = project_root / "src" / "results"
     generated_output_path = results_path / "warehouse_generated.py"

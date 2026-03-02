@@ -1,97 +1,52 @@
 {
-  "schema_version": "1.0",
-  "task_id": "string",
+  "v": 2,
+  "id": "string",
   "title": "string",
   "domain": "string",
-  "description": "string",
+  "desc": "string",
 
-  "environment": {
-    "type": "string",
+  "env": {
     "name": "string",
     "channel": "string",
-    "initial_state": {},
+    "init": {},
     "percepts": [
-      {
-        "name": "string",
-        "args": ["string"],
-        "scope": "string",
-        "generation": {}
-      }
+      { "name": "string", "args": ["string"], "scope": "agent|global" }
     ],
     "actions": [
-      {
-        "name": "string",
-        "invoked_by": "string",
-        "preconditions": [],
-        "effects": []
-      }
+      { "name": "string", "by": "AgentType", "pre": ["string"], "eff": ["string"] }
     ],
-    "dynamics": {
-      "step_limit": 0,
-      "notes": "string"
-    }
+    "step_limit": 0
   },
 
   "agents": [
     {
-      "id": "string",
-      "type": "string",
-      "role": "string",
+      "type": "AgentClassName",
       "count": 1,
-      "initial_beliefs": [],
-      "initial_goals": [],
-      "triggers": [
-        {
-          "when": "gain_belief|gain_goal|gain_percept",
-          "content": { "kind": "Belief|Goal|Percept", "name": "string", "args": ["string"], "scope": "string" },
-          "handler": "string"
-        }
+      "role": "string",
+      "init": { "beliefs": ["string"], "goals": ["string"] },
+
+      "plans": [
+        { "on": "gain_belief|gain_goal|gain_percept", "key": "Kind:name(args)", "do": "behavior_name" }
       ],
+
       "behaviors": [
-        {
-          "name": "string",
-          "steps": [
-            { "op": "string", "params": {} }
-          ],
-          "stop_cycle_after": false
-        }
+        { "name": "behavior_name", "steps": [ { "op": "string", "p": {} } ], "stop_after": false }
       ]
     }
   ],
 
-  "communication": {
-    "channels": [
-      { "name": "string", "semantics": "string" }
-    ],
-    "message_types": ["string"]
-  },
-
-  "termination": {
-    "mode": "event_driven|step_limit",
+  "term": {
+    "mode": "event|steps",
     "step_limit": 0,
-    "stop_conditions": ["string"]
+    "stop": ["string"]
   },
 
-  "success_criteria": [
-    { "name": "string", "definition": "string" }
+  "success": [
+    { "name": "string", "def": "string" }
   ],
 
   "metrics": {
-    "primary": [
-      { "name": "string", "definition": "string" }
-    ],
-    "secondary": [
-      { "name": "string", "definition": "string" }
-    ]
-  },
-
-  "seeds": {
-    "scenario_seed": 0
-  },
-
-  "baseline": {
-    "exists": false,
-    "reference": "string",
-    "notes": "string"
+    "primary": ["string"],
+    "secondary": ["string"]
   }
 }
