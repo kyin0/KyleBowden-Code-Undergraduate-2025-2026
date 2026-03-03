@@ -32,6 +32,7 @@ def build_prompt(task_specification : dict, chunks : list[dict]) -> str:
         - First token must be: from maspy import *
         - If any rule cannot be satisfied, output exactly: FAIL
         - After the final line of Python code, output nothing. Do not add summaries. Add zero text that isn't Python code.
+        - You must follow the Belief-Desire-Intention paradigm when implementing code. Agents MUST adopt goals in response to beliefs.
 
         == ABSOLUTE RULES ==
         A) Plans:
@@ -52,6 +53,11 @@ def build_prompt(task_specification : dict, chunks : list[dict]) -> str:
         D) Connect:
         - Must call exactly: Admin().connect_to([agents...], env_instance)
         - Then: Admin().start_system()
+
+        E) Output:
+        - You must NOT output any backticks at the start or end of your output.
+        - You must NOT send any non-code English text to your output.
+        - You must NOT include ANY descriptions or introductions explaining the code. You must output the plain Python code as if your entire output was going to be placed into a Python file directly.
 
         == FORBIDDEN TOKENS (MUST NOT APPEAR ANYWHERE) ==
         has(
