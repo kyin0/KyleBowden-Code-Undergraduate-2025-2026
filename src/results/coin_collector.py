@@ -3,30 +3,30 @@ from maspy import *
 class CoinCollector(Agent):
     def __init__(self, agt_name=None):
         super().__init__(agt_name)
-        self.coins = 0
         self.add(Goal("collect_coins"))
+        self.coins_collected = 0
 
     @pl(gain, Goal("collect_coins"))
     def collect_coins(self, src):
         # Simulate finding a coin
-        self.coins += 1
-        self.print(f"Collected a coin! Total coins: {self.coins}")
-        if self.coins < 3:
-            self.add(Goal("collect_coins"))
-        else:
-            self.print("Collected enough coins. Stopping.")
+        self.coins_collected += 1
+        self.print(f"Coin collected! Total coins: {self.coins_collected}")
+
+        # Check if the goal is achieved
+        if self.coins_collected >= 3:
+            self.print("Goal achieved: Collected 3 coins!")
             self.stop_cycle()
+        else:
+            # Re-add the goal to continue collecting
+            self.add(Goal("collect_coins"))
 
 class CoinEnvironment(Environment):
-    def __init__(self, env_name=None):
-        super().__init__(env_name)
-
     def spawn_coin(self, agt):
-        self.print(f"Spawning a coin for {agt.my_name}")
+        self.print(f"Coin spawned for {agt.my_name}")
         agt.add(Goal("collect_coins"))
 
 if __name__ == "__main__":
-    env = CoinEnvironment("CoinEnv")
+    env = CoinEnvironment()
     collector = CoinCollector("CoinCollector")
 
     # Simulate coin spawning

@@ -1,6 +1,6 @@
 import requests
 
-from utils.config import load_config
+from src.utils.config import load_config
 
 class LLM:
 

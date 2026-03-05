@@ -1,6 +1,8 @@
-from retriever import retrieve
+import json
 
-def build_prompt(task_specification : dict, chunks : list[dict]) -> str:
+from src.rag.retriever import retrieve
+
+def build_prompt(task_specification : dict, rag_enabled : bool, chunks : list[dict] = None, rag_n : int = 0, issues : str = "") -> str:
 
     """
     Builds a prompt to be submitted to the LLM. Apologies for this functions poor aesthetic.
@@ -13,13 +15,67 @@ def build_prompt(task_specification : dict, chunks : list[dict]) -> str:
     :rtype: str
     """
 
-    agents = []
+    if rag_enabled and (rag_n == 0 or not chunks):
+        raise ValueError("Please specify chunks if rag is enabled.")
+    
+    if rag_n < 0:
+        raise ValueError("rag_n must be an integer greater or equal to 0.")
+    
+    context = ""
+    
+    if rag_enabled:
+        query = f"{task_specification['id']},{task_specification['title']},{task_specification['domain']},{task_specification['desc']}" 
+        retrieved_chunks = retrieve(chunks, query, rag_n)
 
-    for i in range(len(task_specification["agents"])):
-        agents.append(task_specification["agents"][i]["type"])
+        context = f"""
+            == CONTEXT ==
+            BEGIN CONTEXT
+            {retrieved_chunks}
+            END CONTEXT
+        """
 
-    query = f"{task_specification['id']},{task_specification['title']},{task_specification['domain']},{task_specification['desc']}" 
-    retrieved_chunks = retrieve(chunks, query, 3)
+    issues_block = ""
+
+    if issues:
+        findings_for_prompt = []
+
+        raw_findings = []
+        if isinstance(issues, dict):
+            raw_findings = issues.get("findings", [])
+        elif isinstance(issues, list):
+            raw_findings = issues
+
+        for finding in raw_findings:
+            if isinstance(finding, dict):
+                rule = str(finding.get("rule", "validation_rule"))
+                message = str(finding.get("message", finding))
+            else:
+                rule = str(getattr(finding, "rule", "validation_rule"))
+                message = str(getattr(finding, "message", finding))
+
+            findings_for_prompt.append((rule, message))
+
+        if findings_for_prompt:
+            formatted_findings = "\n".join(
+                [f"- [{rule}] {message}" for rule, message in findings_for_prompt]
+            )
+        elif isinstance(issues, dict):
+            formatted_findings = f"- {json.dumps(issues, default=str)}"
+        else:
+            formatted_findings = f"- {str(issues).strip()}"
+
+        issues_block = f"""
+        == VALIDATION FEEDBACK FROM LAST GENERATION ==
+        Your previous output failed static validation. You MUST fix every item below in this retry.
+
+        Issues to fix:
+        {formatted_findings}
+
+        Retry requirements:
+        - Address ALL listed issues.
+        - Output ONLY corrected Python code.
+        - Do NOT include explanations, markdown, or any non-code text.
+        """
 
     task_json = json.dumps(task_specification, indent=2, sort_keys=True)
 
@@ -39,6 +95,7 @@ def build_prompt(task_specification : dict, chunks : list[dict]) -> str:
         - Only @pl(gain, ...) is allowed.
         - @pl(...) may reference ONLY Goal(...) and/or Belief(...). Never Percept(...).
         - No keyword args in @pl (no "=" in decorator).
+        - Your must include an Environment.
 
         B) Percepts:
         - Percept(...) may appear ONLY inside Environment methods and ONLY in: create/get/change/remove.
@@ -53,11 +110,16 @@ def build_prompt(task_specification : dict, chunks : list[dict]) -> str:
         D) Connect:
         - Must call exactly: Admin().connect_to([agents...], env_instance)
         - Then: Admin().start_system()
-
+        
         E) Output:
         - You must NOT output any backticks at the start or end of your output.
         - You must NOT send any non-code English text to your output.
         - You must NOT include ANY descriptions or introductions explaining the code. You must output the plain Python code as if your entire output was going to be placed into a Python file directly.
+
+        F) Task completion:
+        - The agent must continue acting until the goal condition is satisified.
+        - The plan must re-trigger itself (e.g., by re-adding a Goal) if the task requires multiple steps.
+        - The program must only terminate after the success condition is reached.
 
         == FORBIDDEN TOKENS (MUST NOT APPEAR ANYWHERE) ==
         has(
@@ -73,10 +135,9 @@ def build_prompt(task_specification : dict, chunks : list[dict]) -> str:
         {task_json}
         END TASK
 
-        == CONTEXT ==
-        BEGIN CONTEXT
-        {retrieved_chunks}
-        END CONTEXT
+        {issues_block}
+
+        {context}
         """
 
     return prompt
@@ -84,17 +145,12 @@ def build_prompt(task_specification : dict, chunks : list[dict]) -> str:
 # The following is AI generated. It will be removed when I get closer to being done, it just lets me test for now.
 
 if __name__ == "__main__":
-    import sys
     import json
     from pathlib import Path
-    from loader import load_corpus
+    from src.rag.loader import load_corpus
+    from src.llm.llm import LLM
 
     project_root = Path(__file__).resolve().parents[2]
-    src_root = project_root / "src"
-    if str(src_root) not in sys.path:
-        sys.path.insert(0, str(src_root))
-
-    from llm.llm import LLM
 
     task_path = project_root / "planning" / "scenario_ideas" / "coin_collector.json"
     corpus_path = project_root / "knowledge" / "maspy"

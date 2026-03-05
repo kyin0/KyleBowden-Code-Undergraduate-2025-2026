@@ -1,6 +1,5 @@
 import re
 from collections import Counter
-from loader import load_corpus
 
 def tokenize(text : str) -> list[str]:
     return re.findall(r"\b[a-zA-Z_]+\b", text.lower())
@@ -39,5 +38,3 @@ def retrieve(chunks : list[dict], query : str, k : int = 8) -> list[dict]:
     scored.sort(key=lambda x : x[0], reverse=True)
 
     return [chunk for score, chunk in scored[:k] if score > 0]
-
-chunks = load_corpus("knowledge/maspy")

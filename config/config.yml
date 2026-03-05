@@ -6,3 +6,10 @@ llm:
   SEED: 42
   TIMEOUT_SECONDS: 900
   LLM_ENDPOINT: http://localhost:11434/api/generate
+
+rag:
+  ENABLED: True
+  RAG_N: 3
+
+runner:
+  MAX_REPAIR_ITERATIONS: 6
