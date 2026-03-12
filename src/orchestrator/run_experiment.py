@@ -1,18 +1,22 @@
 from pathlib import Path
-import json
 
 from src.llm.llm import LLM
 from src.rag.loader import load_corpus
 from src.utils.config import load_config
 from src.rag.prompt_builder import build_prompt
 
+from src.store.database import Database
+
 from src.checks.static_checker import StaticChecker
+
+from src.sandbox.runner import run_file
 
 class Orchestrator:
 
     def __init__(self):
         self.llm = LLM()
         self.static_checker = StaticChecker()
+        self.db = Database()
 
         self.project_root = Path(__file__).resolve().parents[2]
 
@@ -24,24 +28,29 @@ class Orchestrator:
         self.rag_n = rag_config["RAG_N"]
         self.repair_max_iterations = runner_config["MAX_REPAIR_ITERATIONS"]
     
-    def run_experiment(self, experiment_file : str):
+    def run_experiment(self, task_id : str):
+        task_specification = self.db.get_task(task_id)
+        results_path = self.project_root / "src" / "results" / f"{task_id}.py"
 
-        task_path = self.project_root / "planning" / "scenario_ideas" / f"{experiment_file}.json"
-        results_path = self.project_root / "src" / "results" / f"{experiment_file}.py"
-
-        with open(task_path, "r", encoding="UTF-8") as f:
-            task_specification = json.load(f)
+        print("Loaded task specification")
 
         chunks = None
 
         if self.rag_enabled:
             corpus_path = self.project_root / "knowledge" / "maspy"
             chunks = load_corpus(corpus_path)
+            print("Loaded CORPUS")
 
         issues = "" # empty first. when issues arise in static checker or runtime env, report here and re-generate.
+
+        valid = False
+        counter = 0
         
-        for i in range(self.repair_max_iterations):
+        while not valid:
+            print(f"Attempting to build code. Attempt: {counter}")
             prompt = build_prompt(task_specification, self.rag_enabled, chunks, self.rag_n, issues)
+
+            print(prompt)
 
             generated_code = self.llm.generate(prompt)
 
@@ -60,12 +69,22 @@ class Orchestrator:
             results = self.static_checker.validate(cleaned_code)
 
             if results["pass"]:
-                break
+                valid = True
             else:
-                print(f"Failed! Reason: {results}. Iteration: {i}")
+                print(f"Failed! Reason: {results}. Iteration: {counter}")
 
-                issues = results
+                issues = f"{issues}Issue {counter}: {results}\n"
+
+                if counter >= self.repair_max_iterations:
+                    print(f"Maximum number of repairs reached ({counter}). Terminating...")
+                    return
             
         results_path.write_text(cleaned_code, encoding="UTF-8")
 
-        print(results)
+        print("Code passed static tests.")
+
+        print("Running file...")
+
+        runtime_results = run_file(results_path)
+
+        print(runtime_results)

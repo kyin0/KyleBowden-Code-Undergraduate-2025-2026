@@ -19,7 +19,8 @@ class ForbiddenCallsRule:
             "has_belief(",
             "self.delete(",
             "self.remove(",
-            "self.world"
+            "self.world",
+            "Admin().cycle()"
         ]
 
         for hallucination in hallucinations:

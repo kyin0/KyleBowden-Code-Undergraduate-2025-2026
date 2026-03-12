@@ -13,3 +13,7 @@ rag:
 
 runner:
   MAX_REPAIR_ITERATIONS: 6
+  TIMEOUT: 10
+
+store:
+  DB_NAME: dissertation
