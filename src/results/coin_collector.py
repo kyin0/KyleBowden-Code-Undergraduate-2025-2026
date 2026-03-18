@@ -1,38 +1,35 @@
 from maspy import *
 
-class CoinCollector(Environment):
-    def __init__(self):
-        super().__init__()
-        self.coins = 3  # Total coins available in the environment
+class CoinWorld(Environment):
+    def __init__(self, env_name=None):
+        super().__init__(env_name)
+        self.coins = 3
 
-    def collect_coin(self, agt, coin_id):
+    def collect_coin(self, agt):
         if self.coins > 0:
+            coin_id = self.coins
             self.coins -= 1
-            self.print(f"Coin {coin_id} collected by {agt}. Remaining coins: {self.coins}")
-            self.create(Percept("coin_collected", {"collector": agt, "coin_id": coin_id}))
-        else:
-            self.print(f"No coins left for {agt} to collect.")
+            return True, coin_id
+        return False, None
 
-class CoinAgent(Agent):
-    def __init__(self, agt_name=None):
+class Collector(Agent):
+    def __init__(self, env, agt_name=None):
         super().__init__(agt_name)
-        self.coins_collected = 0
-        self.add(Goal("collect_coins"))
+        self.env = env
+        self.add(Belief("coin_count", (0,)))
+        self.add(Goal("collect", (3,)))
 
-    @pl(gain, Goal("collect_coins"))
-    def collect_coins(self, src):
-        if self.coins_collected < 3:  # Assuming each agent can collect up to 3 coins
-            coin_id = self.coins_collected + 1
-            self.print(f"{self.my_name} is trying to collect coin {coin_id}.")
-            self.env.collect_coin(self.my_name, coin_id)
-            self.coins_collected += 1
-        else:
-            self.print(f"{self.my_name} has collected all the coins.")
-            self.stop_cycle()
+    @pl(gain, Goal("collect", (3,)), Belief("coin_count", (Any,)))
+    def collect_coins(self, src, target, current_count):
+        success, coin_id = self.env.collect_coin(self)
+        if success:
+            new_count = current_count[0] + 1
+            self.add(Belief("has_coin", (coin_id,)))
+            self.add(Belief("coin_count", (new_count,)))
+            if new_count < target[0]:
+                self.add(Goal("collect", (target[0],)))
 
-if __name__ == "__main__":
-    env = CoinCollector()
-    agents = [CoinAgent(f"Agent_{i+1}") for i in range(2)]  # Creating two agents
-
-    Admin().connect_to(agents, env)
-    Admin().start_system()
+env = CoinWorld()
+collector = Collector(env)
+Admin().connect_to([collector], env)
+Admin().start_system()

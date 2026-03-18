@@ -16,6 +16,9 @@ class LLM:
         self.model = llm_config["MODEL"]
         self.timeout_seconds = llm_config["TIMEOUT_SECONDS"]
         self.llm_endpoint = llm_config["LLM_ENDPOINT"]
+        self.repeat_penalty = llm_config["REPEAT_PENALTY"]
+        self.repeat_last_n = llm_config["REPEAT_LAST_N"]
+        self.num_predict = llm_config["NUM_PREDICT"]
 
     def generate(self, prompt : str) -> dict:
 
@@ -29,7 +32,10 @@ class LLM:
                 "seed": self.seed,
                 "temperature": self.temperature,
                 "top_k": self.top_k,
-                "top_p": self.top_p
+                "top_p": self.top_p,
+                "repeat_penalty": self.repeat_penalty,
+                "repeat_last_n": self.repeat_last_n,
+                "num_predict": self.num_predict
             }
         }
 

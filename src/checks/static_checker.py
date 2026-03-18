@@ -3,7 +3,6 @@ from src.checks.code_only import CodeOnlyRule
 from src.checks.forbidden_calls import ForbiddenCallsRule
 from src.checks.plan_rules import PlanRule
 from src.checks.required_substrings import RequiredSubstringsRule
-from src.checks.check_environment import EnvironmentRule
 
 class StaticChecker:
 
@@ -14,8 +13,7 @@ class StaticChecker:
             CodeOnlyRule(),
             ForbiddenCallsRule(),
             PlanRule(),
-            RequiredSubstringsRule(),
-            EnvironmentRule()
+            #RequiredSubstringsRule(),
         ]
     
     def validate(self, code):

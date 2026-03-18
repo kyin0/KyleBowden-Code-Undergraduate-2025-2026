@@ -28,7 +28,6 @@ class Park(Environment):
             self.change(spot,(spot_id,driver))
 
             # You could also remove the old and create the new
-            self.remove(spot)
             self.create(Percept("spot",(spot_id,driver)))
 
     def leave_spot(self, agt):

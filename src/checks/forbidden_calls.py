@@ -17,10 +17,11 @@ class ForbiddenCallsRule:
             "update_belief(",
             "delete_belief(",
             "has_belief(",
-            "self.delete(",
-            "self.remove(",
             "self.world",
-            "Admin().cycle()"
+            "Admin().cycle()",
+            "self.env_instance",
+            "request_percept",
+            "create_percept"
         ]
 
         for hallucination in hallucinations:

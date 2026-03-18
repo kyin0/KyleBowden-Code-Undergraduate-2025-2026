@@ -80,63 +80,98 @@ def build_prompt(task_specification : dict, rag_enabled : bool, chunks : list[di
     task_json = json.dumps(task_specification, indent=2, sort_keys=True)
 
     prompt = f"""
-        == ROLE ==
         Generate a MASPY program in Python.
 
-        == OUTPUT ==
-        - Output ONLY Python code (no prose).
-        - First token must be: from maspy import *
-        - If any rule cannot be satisfied, output exactly: FAIL
-        - After the final line of Python code, output nothing. Do not add summaries. Add zero text that isn't Python code.
-        - You must follow the Belief-Desire-Intention paradigm when implementing code. Agents MUST adopt goals in response to beliefs.
+        OUTPUT RULES
+        - Output ONLY Python code.
+        - First line must be exactly: from maspy import *
+        - No prose, comments, markdown fences, headings, notes, or explanations.
+        - No text before the first line.
+        - No text after the final line of code.
+        - If the task cannot be completed using only valid MASPY patterns from CONTEXT, output exactly: FAIL
 
-        == ABSOLUTE RULES ==
-        A) Plans:
-        - Only @pl(gain, ...) is allowed.
-        - @pl(...) may reference ONLY Goal(...) and/or Belief(...). Never Percept(...).
-        - No keyword args in @pl (no "=" in decorator).
-        - Your must include an Environment.
+        CORE RULES
+        - Use only MASPY API patterns shown in CONTEXT.
+        - Do not invent helper methods, attributes, or alternate API names.
+        - Do not invent framework shortcuts.
+        - Follow the BDI paradigm: beliefs/goals trigger plans, and plans perform actions.
 
-        B) Percepts:
-        - Percept(...) may appear ONLY inside Environment methods and ONLY in: create/get/change/remove.
-        - Percept payload must be: Percept("name", values_tuple=(...))
-        - Never use dict payloads. Never use Any inside Percept(...).
+        PLAN RULES
+        - Define plans only inside Agent subclasses.
+        - Only use @pl(gain, ...)
+        - @pl(...) may contain only Goal(...) and/or Belief(...)
+        - Never use Percept(...) inside @pl(...)
+        - No keyword arguments inside @pl(...)
 
-        C) Agents:
-        - Agent code must NEVER contain Percept(...).
-        - Agent code must NEVER call: has(, get(, update(, delete(, wait(, sleep(, log(
-        - Agent counters/progress MUST use Python attributes (e.g. self.coins_collected). Do NOT use beliefs for counters.
+        PERCEPT RULES
+        - Percept syntax must be exactly: Percept("name", (...))
+        - Never use values_tuple=
+        - Percept(...) may appear only inside Environment methods
+        - Agent code must never contain Percept(...)
+        - Never use Any inside Percept(...)
 
-        D) Connect:
-        - Must call exactly: Admin().connect_to([agents...], env_instance)
-        - Then: Admin().start_system()
-        
-        E) Output:
-        - You must NOT output any backticks at the start or end of your output.
-        - You must NOT send any non-code English text to your output.
-        - You must NOT include ANY descriptions or introductions explaining the code. You must output the plain Python code as if your entire output was going to be placed into a Python file directly.
+        BELIEF / STATE RULES
+        - Use Python attributes for counters/progress
+        - When updating a belief, remove the old belief with rm(...) and add the new belief with add(...)
+        - Do not use invented belief helpers
 
-        F) Task completion:
-        - The agent must continue acting until the goal condition is satisified.
-        - The plan must re-trigger itself (e.g., by re-adding a Goal) if the task requires multiple steps.
-        - The program must only terminate after the success condition is reached.
+        FORBIDDEN
+        - get_percepts
+        - self.get_percepts
+        - update_belief
+        - get_belief
+        - set_belief
+        - delete_belief
+        - has_belief
+        - self.world
+        - world.
+        - Admin().get_environment()
+        - self.update(
+        - self.delete(
+        - delete(
+        - wait(
+        - sleep(
+        - log(
+        - comments using #
 
-        == FORBIDDEN TOKENS (MUST NOT APPEAR ANYWHERE) ==
-        has(
-        get(
-        update
-        delete(
-        wait(
-        sleep(
-        log(
+        RUNTIME RULES
+        - Define exactly one Environment subclass named CoinWorld
+        - Define exactly one Agent subclass named Collector
+        - Instantiate the environment
+        - Instantiate the agent
+        - Pass env into the agent constructor and store it as self.env
+        - Include exactly one line: Admin().connect_to([collector], env)
+        - Include exactly one line: Admin().start_system()
+        - Do not use if __name__ == "__main__":
 
-        == TASK ==
-        BEGIN TASK
-        {task_json}
-        END TASK
+        TASK SPEC
+        - Environment name: CoinWorld
+        - Agent name: Collector
+        - One Collector agent
+        - Target: collect 3 coins
+        - Initial belief: Belief("coin_count", (0,))
+        - Initial goal: Goal("collect", (3,))
+        - The environment manages coin state
+        - The agent must collect coins until count reaches 3
+        - After collecting a coin:
+        - the agent gains Belief("has_coin", (coin_id,))
+        - the old coin_count belief is removed
+        - the new coin_count belief is added
+        - the Python counter is incremented
+        - If target not yet reached, re-add the collect goal
+        - Stop only after the target is reached
 
+        IMPLEMENTATION CONSTRAINTS
+        - Do not scan percept lists unless CONTEXT shows an exact valid MASPY pattern for doing so
+        - Do not invent environment removal/update APIs unless CONTEXT shows them
+        - If an operation is required, implement it only using syntax demonstrated in CONTEXT
+        - Prefer the simplest valid implementation that satisfies the task
+        - Do not add extra features, metrics, printing, logging, randomisation, or assumptions not required by the task
+
+        REPAIR NOTES
         {issues_block}
 
+        CONTEXT
         {context}
         """
 
