@@ -23,193 +23,36 @@ class Orchestrator:
         config = load_config()
         rag_config = config["rag"]
         runner_config = config["runner"]
+        llm_config = config["llm"]
 
         self.rag_enabled = rag_config["ENABLED"]
         self.rag_n = rag_config["RAG_N"]
         self.repair_max_iterations = runner_config["MAX_REPAIR_ITERATIONS"]
-    
-    def run_file_change_experiment(self):
+        self.runner_timeout = runner_config["TIMEOUT"]
+        self.model = llm_config["MODEL"]
+        self.temperature = llm_config["TEMPERATURE"]
+        self.top_k = llm_config["TOP_K"]
+        self.top_p = llm_config["TOP_P"]
+        self.seed = llm_config["SEED"]
+        self.timeoutseconds = llm_config["TIMEOUT_SECONDS"]
+        self.repeat_penalty = llm_config["REPEAT_PENALTY"]
+        self.repeat_last_n = llm_config["REPEAT_LAST_N"]
+        self.num_predict = llm_config["NUM_PREDICT"]
 
-        results_path = self.project_root / "src" / "results" / f"test.py"
+    def _extract_code(self, generated_code):
+        response_text = generated_code["response"] if isinstance(generated_code, dict) else str(generated_code)
+        cleaned_code = response_text.strip()
 
-        task = """
-            You are editing an existing MASPY Python file.
+        if cleaned_code.startswith("```"):
+            lines = cleaned_code.splitlines()
+            if lines and lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].startswith("```"):
+                lines = lines[:-1]
+            cleaned_code = "\n".join(lines).strip()
 
-            EXISTING FILE
-            from maspy import *
-
-            class DummyAgent(Agent):
-                def __init__(self, name,  beliefs, goals):
-                    super().__init__(name, beliefs, goals, show_exec=False)
-                    self.add(Belief("Box",(5,10)))
-                    
-                @pl(gain,Goal("move_boxes"), Belief("Box",(Any,Any)))
-                def move_to_pos(self, src, position):
-                    x, y = position
-                    my_pos = self.get(Belief("my_pos",(Any,Any)))
-                    self.move(my_pos.values, (x,y))
-                    self.print(f"Picking up Box in {x,y}")
-                    target_pos = self.get(Belief("target_pos",(Any,Any)))
-                    self.move((x,y), target_pos.values)
-                    self.print(f"Putting Box in {target_pos.values}")
-                    self.stop_cycle()
-            
-                def move(self, my_pos, target_pos):
-                    self.print(f"Moving from {my_pos} to target {target_pos} position")
-
-            if __name__ == "__main__":
-                agent_1 = DummyAgent("Dummy_1", [Belief("my_pos",(0,0)),Belief("target_pos",(7,7))], Goal("move_boxes"))
-
-                agent_2 = DummyAgent("Dummy_2", [Belief("my_pos",(3,3)),Belief("target_pos",(3,3))], Goal("move_boxes"))
-
-                Admin().start_system()
-
-            TASK
-            - Edit the existing file.
-            - Preserve the current structure and existing behaviour unless a change is required for the task.
-            - Add one additional agent instance named Dummy_3.
-            - Dummy_3 must be instantiated with:
-            - Belief("my_pos",(10,10))
-            - Belief("target_pos",(1,1))
-            - Goal("move_boxes")
-
-            NEW REQUIRED BEHAVIOUR
-            - Add a new plan inside DummyAgent with this exact trigger:
-            @pl(gain, Goal("return_home"), Belief("start_pos",(Any,Any)))
-            - This plan must:
-            - get the start_pos belief
-            - get the current my_pos belief
-            - call self.move(current_position, start_position)
-            - print that the agent is returning home
-            - stop the cycle
-
-            REQUIRED CHANGES TO EXISTING FLOW
-            - In __init__, every agent must store its initial starting position as:
-            Belief("start_pos", (x,y))
-            where (x,y) matches the initial my_pos passed into the constructor
-            - In the existing move_to_pos plan:
-            - after putting the box in the target position
-            - add the goal Goal("return_home")
-            - remove the direct stop_cycle() from move_to_pos
-            - The new return_home plan must be the place that calls stop_cycle()
-
-            OUTPUT
-            - Output the FULL final file content.
-            - Do not output a diff.
-            - Do not output partial snippets.
-        """
-
-
-        issues = ""
-
-        valid = False
-        counter = 0
-
-        while not valid:
-            counter += 1
-
-            print(f"Attempting to build code. Attempt: {counter}")
-            prompt = f"""
-                Generate valid MASPY Python code by editing an existing file.
-
-                OUTPUT RULES
-                - Output ONLY Python code.
-                - First line must be exactly: from maspy import *
-                - No prose, comments, markdown fences, headings, notes, or explanations.
-                - No text before the first line.
-                - No text after the final line of code.
-                - Output the FULL final file content.
-                - If the task cannot be completed using only valid MASPY patterns already present in the file/task, output exactly: FAIL
-
-                CORE RULES
-                - Preserve the existing file unless a change is required by the task.
-                - Make the smallest valid edit that completes the task.
-                - Do not rewrite the whole program unnecessarily.
-                - Follow the BDI paradigm already used in the file.
-                - Do not invent helper methods, attributes, or alternate API names.
-                - Do not invent framework shortcuts.
-
-                PLAN RULES
-                - Define plans only inside Agent subclasses.
-                - Only use @pl(gain, ...)
-                - @pl(...) may contain only Goal(...) and/or Belief(...)
-                - Never use Percept(...) inside @pl(...)
-                - No keyword arguments inside @pl(...)
-
-                BELIEF / STATE RULES
-                - Use only Belief(...) / Goal(...) patterns already demonstrated in the file/task.
-                - Do not invent belief helper methods.
-
-                FORBIDDEN
-                - get_percepts
-                - self.get_percepts
-                - update_belief
-                - get_belief
-                - set_belief
-                - delete_belief
-                - has_belief
-                - self.world
-                - world.
-                - Admin().get_environment()
-                - self.update(
-                - self.delete(
-                - delete(
-                - wait(
-                - sleep(
-                - log(
-                - comments using #
-
-                PLAN SIGNATURE RULE
-                - If @pl(...) includes Belief(...) or Goal(...) with values,
-                the function MUST include parameters to receive:
-                    (self, src, <values...>)
-                - The number of parameters must match the trigger/context arguments
-
-                TASK
-                {task}
-
-                REPAIR NOTES
-                - Previous validation issues:
-                {issues}
-            """
-
-            generated_code = self.llm.generate(prompt)
-
-            print(generated_code["response"])
-            response_text = generated_code["response"] if isinstance(generated_code, dict) else str(generated_code)
-            cleaned_code = response_text.strip()
-
-            if cleaned_code.startswith("```"):
-                lines = cleaned_code.splitlines()
-                if lines and lines[0].startswith("```"):
-                    lines = lines[1:]
-                if lines and lines[-1].startswith("```"):
-                    lines = lines[:-1]
-                cleaned_code = "\n".join(lines).strip()
-
-            cleaned_code = cleaned_code.replace("```python", "").replace("```", "").replace("`", "")
-            results = self.static_checker.validate(cleaned_code)
-
-            if results["pass"]:
-                valid = True
-            else:
-                print(f"Failed! Reason: {results}. Iteration: {counter}")
-
-                issues = f"{issues}Issue {counter}: {results}\n"
-
-                if counter >= self.repair_max_iterations:
-                    print(f"Maximum number of repairs reached ({counter}). Terminating...")
-                    return
-            
-        results_path.write_text(cleaned_code, encoding="UTF-8")
-
-        print("Code passed static tests.")
-
-        print("Running file...")
-
-        runtime_results = run_file(results_path)
-
-        print(runtime_results)
+        cleaned_code = cleaned_code.replace("```python", "").replace("```", "").replace("`", "")
+        return cleaned_code
     
     def run_experiment(self, task_id : str):
         task_specification = self.db.get_task(task_id)
@@ -224,51 +67,96 @@ class Orchestrator:
             chunks = load_corpus(corpus_path)
             print("Loaded CORPUS")
 
-        issues = "" # empty first. when issues arise in static checker or runtime env, report here and re-generate.
-
-        valid = False
+        repair_context = None
         counter = 0
+
+        passed = False
+        cleaned_code = ""
+        prompt = ""
+        failure_reason_category = None
+
+        runtime = 0
+        success = False
+        timed_out = False
+        code_output = {}
+        exit_code = None
         
-        while not valid:
+        while True:
             counter += 1
-            print(f"Attempting to build code. Attempt: {counter}")
-            prompt = build_prompt(task_specification, self.rag_enabled, chunks, self.rag_n, issues)
+            print(f"Attempting pipeline. Attempt: {counter}")
+            prompt = build_prompt(task_specification, self.rag_enabled, chunks, self.rag_n, repair_context)
 
             generated_code = self.llm.generate(prompt)
 
-            print(generated_code["response"])
-
-            response_text = generated_code["response"] if isinstance(generated_code, dict) else str(generated_code)
-            cleaned_code = response_text.strip()
-
-            if cleaned_code.startswith("```"):
-                lines = cleaned_code.splitlines()
-                if lines and lines[0].startswith("```"):
-                    lines = lines[1:]
-                if lines and lines[-1].startswith("```"):
-                    lines = lines[:-1]
-                cleaned_code = "\n".join(lines).strip()
-
-            cleaned_code = cleaned_code.replace("```python", "").replace("```", "").replace("`", "")
-            results = self.static_checker.validate(cleaned_code)
-
-            if results["pass"]:
-                valid = True
+            if isinstance(generated_code, dict) and "response" in generated_code:
+                print(generated_code["response"])
             else:
+                print(generated_code)
+
+            cleaned_code = self._extract_code(generated_code)
+
+            if cleaned_code.strip() == "FAIL":
+                failure_reason_category = "static checker"
+                print("Model returned FAIL. Terminating...")
+                break
+
+            results = self.static_checker.validate(cleaned_code, task_specification)
+
+            if not results["pass"]:
                 print(f"Failed! Reason: {results}. Iteration: {counter}")
 
-                issues = f"{issues}Issue {counter}: {results}\n"
+                failure_reason_category = "static checker"
+                repair_context = {
+                    "type": "static",
+                    "findings": results["findings"],
+                    "previous_code": cleaned_code,
+                }
 
                 if counter >= self.repair_max_iterations:
                     print(f"Maximum number of repairs reached ({counter}). Terminating...")
-                    return
-            
-        results_path.write_text(cleaned_code, encoding="UTF-8")
+                    break
 
-        print("Code passed static tests.")
+                continue
 
-        print("Running file...")
+            results_path.write_text(cleaned_code, encoding="UTF-8")
 
-        runtime_results = run_file(results_path)
+            print("Code passed static tests.")
+            print("Running file...")
 
-        print(runtime_results)
+            runtime_results = run_file(results_path)
+
+            runtime = runtime_results["runtime"]
+            exit_code = runtime_results["exit_code"]
+            code_output = runtime_results
+
+            if runtime_results["exit_code"] == 0:
+                success = True
+                passed = True
+                break
+
+            if runtime_results["runtime"] == self.runner_timeout:
+                timed_out = True
+                failure_reason_category = "timeout"
+                print(f"Timeout! Reason: {runtime_results['stderr'] or runtime_results['stdout']}. Iteration: {counter}")
+            else:
+                failure_reason_category = "runtime error"
+                print(f"Runtime error! Reason: {runtime_results['stderr'] or runtime_results['stdout']}. Iteration: {counter}")
+
+            repair_context = {
+                "type": "runtime",
+                "previous_code": cleaned_code,
+                "stdout": runtime_results["stdout"],
+                "stderr": runtime_results["stderr"],
+                "exit_code": runtime_results["exit_code"],
+                "timed_out": runtime_results["runtime"] == self.runner_timeout,
+            }
+
+            if counter >= self.repair_max_iterations:
+                print(f"Maximum number of repairs reached ({counter}). Terminating...")
+                break
+
+        line_count = sum(1 for line in cleaned_code.splitlines() if line.strip())
+
+        percept_count = cleaned_code.count("Percept(")
+
+        self.db.insert_results(task_id, prompt, self.rag_enabled, self.rag_n, self.model, self.temperature, self.top_k, self.top_p, self.seed, self.timeoutseconds, self.repeat_penalty, self.repeat_last_n, self.num_predict, self.runner_timeout, line_count, percept_count, runtime, success, counter, timed_out, cleaned_code, code_output, "create", failure_reason_category, exit_code)

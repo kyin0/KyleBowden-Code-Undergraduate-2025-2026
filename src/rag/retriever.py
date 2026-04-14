@@ -1,8 +1,22 @@
-import re
 from collections import Counter
 
 def tokenize(text : str) -> list[str]:
-    return re.findall(r"\b[a-zA-Z_]+\b", text.lower())
+    lowered = text.lower()
+    tokens = []
+    current = []
+
+    for char in lowered:
+        if char.isalpha() or char == "_":
+            current.append(char)
+        else:
+            if current:
+                tokens.append("".join(current))
+                current = []
+
+    if current:
+        tokens.append("".join(current))
+
+    return tokens
 
 def score_chunk(chunk : dict, query_tokens : list[str]) -> float:
 

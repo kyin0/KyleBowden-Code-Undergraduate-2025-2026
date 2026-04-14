@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import time
 
 from src.utils.config import load_config
@@ -13,8 +14,11 @@ def run_file(path):
 
     try:
         result = subprocess.run(
-            ["python", "-u", path],
+            [sys.executable, "-u", str(path)],
             capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout
         )
 

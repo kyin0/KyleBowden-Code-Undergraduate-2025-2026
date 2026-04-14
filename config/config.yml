@@ -1,5 +1,5 @@
 llm:
-  MODEL: qwen2.5-coder:32b
+  MODEL: qwen2.5-coder:7b
   TEMPERATURE: 0.1
   TOP_K: 20
   TOP_P: 0.8
@@ -8,11 +8,11 @@ llm:
   LLM_ENDPOINT: http://localhost:11434/api/generate
   REPEAT_PENALTY: 1.05
   REPEAT_LAST_N: 128
-  NUM_PREDICT: 900
+  NUM_PREDICT: 1000
 
 rag:
   ENABLED: True
-  RAG_N: 2
+  RAG_N: 4
 
 runner:
   MAX_REPAIR_ITERATIONS: 6
