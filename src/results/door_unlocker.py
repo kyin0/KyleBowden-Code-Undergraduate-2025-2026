@@ -1,8 +1,8 @@
 from maspy import *
 
 class DoorWorld(Environment):
-    def __init__(self, env_name=None):
-        super().__init__(env_name)
+    def __init__(self):
+        super().__init__()
         self.door_state = "locked"
 
     def unlock_door(self):
@@ -18,29 +18,27 @@ class DoorWorld(Environment):
         return False
 
 class DoorAgent(Agent):
-    def __init__(self, agent_name=None, env=None):
-        super().__init__(agent_name)
-        self.env = env
-        self.add(Belief("has_key", ("True",)))
+    def __init__(self, env):
+        super().__init__("DoorAgent", env)
+        self.add(Belief("has_key", ("true",)))
         self.add(Belief("door_state", ("locked",)))
         self.add(Goal("open_door", ()))
 
-    @pl(gain, Goal("open_door"), Belief("door_state", (Any,)))
-    def unlock_and_open(self, src, door_state):
+    @pl(gain, Goal("open_door"), Belief("door_state", ("locked",)))
+    def unlock_door(self, src, door_state):
         if self.env.unlock_door():
-            self.rm(Belief("door_state", (door_state,)))
+            self.rm(Belief("door_state", ("locked",)))
             self.add(Belief("door_state", ("closed",)))
-            self.add(Goal("open_door", ()))
 
-    @pl(gain, Goal("open_door"), Belief("door_state", (Any,)))
-    def open_door_now(self, src, door_state):
+    @pl(gain, Goal("open_door"), Belief("door_state", ("closed",)))
+    def open_door(self, src, door_state):
         if self.env.open_door():
-            self.rm(Belief("door_state", (door_state,)))
+            self.rm(Belief("door_state", ("closed",)))
             self.add(Belief("door_state", ("open",)))
             self.stop_cycle()
 
 if __name__ == "__main__":
     env = DoorWorld()
-    agent = DoorAgent(env=env)
+    agent = DoorAgent(env)
     Admin().connect_to([agent], env)
     Admin().start_system()

@@ -31,7 +31,7 @@ class LightAgent(Agent):
             self.add(Belief("light_state", ("on",)))
             self.add(Goal("turn_off"))
     
-    @pl(gain, Goal("turn_off"), Belief("light_state", ("on",)))
+    @pl(gain, Goal("turn_off"), Belief("light_state", (Any,)))
     def turn_light_off(self, src, light_state):
         if self.env.turn_light_off(self):
             self.rm(Belief("light_state", (light_state,)))

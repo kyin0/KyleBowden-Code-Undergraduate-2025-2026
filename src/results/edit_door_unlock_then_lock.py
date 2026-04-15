@@ -4,13 +4,13 @@ class DoorEnv(Environment):
     def __init__(self, env_name=None):
         super().__init__(env_name)
         self.door_state = "locked"
-
+    
     def unlock_door(self, agt):
         if self.door_state == "locked":
             self.door_state = "unlocked"
             return True
         return False
-
+    
     def lock_door(self, agt):
         if self.door_state == "unlocked":
             self.door_state = "locked"
@@ -23,15 +23,15 @@ class DoorAgent(Agent):
         self.env = env
         self.add(Belief("door_state", ("locked",)))
         self.add(Goal("unlock"))
-
+    
     @pl(gain, Goal("unlock"), Belief("door_state", (Any,)))
     def unlock_door(self, src, door_state):
         if self.env.unlock_door(self):
             self.rm(Belief("door_state", (door_state,)))
             self.add(Belief("door_state", ("unlocked",)))
             self.add(Goal("lock"))
-
-    @pl(gain, Goal("lock"), Belief("door_state", ("unlocked",)))
+    
+    @pl(gain, Goal("lock"), Belief("door_state", (Any,)))
     def lock_door(self, src, door_state):
         if self.env.lock_door(self):
             self.rm(Belief("door_state", (door_state,)))

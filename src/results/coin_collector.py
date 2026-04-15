@@ -3,27 +3,36 @@ from maspy import *
 class CoinWorld(Environment):
     def __init__(self, env_name=None):
         super().__init__(env_name)
-        self.create(Belief("coin_count", (0,), adds_event=False))
+        self.create(Percept("coin", None, "coins", False))
+        self.coin_count = 0
 
-    def collect_coin(self, coin_id):
-        current_count = self.get(Belief("coin_count", (Any,))).values[0]
-        new_count = current_count + 1
-        self.rm(Belief("coin_count", (current_count,), adds_event=False))
-        self.add(Belief("coin_count", (new_count,), adds_event=False))
-        self.add(Belief("has_coin", (coin_id,), adds_event=False))
+    def add_coin(self, coin_id):
+        self.create(Percept("coin", coin_id, "coins", True))
+        self.coin_count += 1
+
+    def remove_coin(self, coin_id):
+        self.rm(Percept("coin", coin_id, "coins"))
+        self.coin_count -= 1
 
 class Collector(Agent):
     def __init__(self, agent_name=None):
         super().__init__(agent_name)
-        self.add(Goal("collect", (3,), source="self"))
-        self.add(Belief("coin_count", (0,), source="self"))
+        self.add(Belief("coin_count", (0,)))
+        self.add(Goal("collect"))
 
-    @pl(gain, Goal("collect", (3,)), Belief("coin_count", (Any,)))
-    def collect_coins(self, src, target, coin_count):
-        if coin_count < target:
-            self.env.collect_coin(coin_id=coin_count + 1)
-        else:
-            self.stop_cycle()
+    @pl(gain, Goal("collect"), Belief("coin_count", (Any,)))
+    def collect_coin(self, src, coin_count):
+        if coin_count < 3:
+            coins = self.env.get(Percept("coin", None, "coins"))
+            if coins:
+                for coin in coins:
+                    self.env.rm(coin)
+                    self.add(Belief("has_coin", (coin.values[0],)))
+                    self.rm(Belief("coin_count"))
+                    self.add(Belief("coin_count", (self.env.coin_count + 1,)))
+            else:
+                self.stop_cycle()
+            self.add(Goal("collect"))
 
 if __name__ == "__main__":
     env = CoinWorld("CoinWorld")

@@ -1,5 +1,5 @@
 llm:
-  MODEL: qwen2.5-coder:7b
+  MODEL: deepseek-coder-v2:16b
   TEMPERATURE: 0.1
   TOP_K: 20
   TOP_P: 0.8

@@ -39,7 +39,7 @@ class Courier(Agent):
     @pl(gain, Goal("return_to_depot"), Belief("courier_location", ("customer",)))
     def return_to_depot(self, src, courier_location):
         if self.env.return_to_depot(self):
-            self.rm(Belief("courier_location", ("customer",)))
+            self.rm(Belief("courier_location", (courier_location,)))
             self.add(Belief("courier_location", ("depot",)))
             self.stop_cycle()
 

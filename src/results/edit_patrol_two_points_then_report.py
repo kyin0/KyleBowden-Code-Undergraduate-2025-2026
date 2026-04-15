@@ -30,7 +30,7 @@ class GuardAgent(Agent):
                 self.add(Goal("report"))
 
     @pl(gain, Goal("report"), Belief("report_state", (Any,)))
-    def report(self, src, report_state):
+    def send_report(self, src, report_state):
         if report_state == "pending":
             self.rm(Belief("report_state", ("pending",)))
             self.add(Belief("report_state", ("sent",)))
