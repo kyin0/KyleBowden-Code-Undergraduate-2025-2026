@@ -288,41 +288,18 @@ def build_prompt(task_specification : dict, rag_enabled : bool, chunks : list[di
 
     return prompt
 
-# The following is AI generated. It will be removed when I get closer to being done, it just lets me test for now.
-
-if __name__ == "__main__":
-    import json
-    from pathlib import Path
-    from src.rag.loader import load_corpus
-    from src.llm.llm import LLM
-
-    project_root = Path(__file__).resolve().parents[2]
-
-    task_path = project_root / "planning" / "scenario_ideas" / "coin_collector.json"
-    corpus_path = project_root / "knowledge" / "maspy"
-    results_path = project_root / "src" / "results"
-    generated_output_path = results_path / "warehouse_generated.py"
-
-    with open(task_path, "r", encoding="utf-8") as tf:
-        task_specification = json.load(tf)
-
-    chunks = load_corpus(corpus_path)
-    prompt = build_prompt(task_specification, True, chunks, 4)
-
-    llm = LLM()
-    generated_code = llm.generate(prompt)
-
-    response_text = generated_code["response"] if isinstance(generated_code, dict) else str(generated_code)
+def _clean_generated_code(response_text: str) -> str:
     cleaned_code = response_text.strip()
 
     if cleaned_code.startswith("```"):
         lines = cleaned_code.splitlines()
+
         if lines and lines[0].startswith("```"):
             lines = lines[1:]
+
         if lines and lines[-1].startswith("```"):
             lines = lines[:-1]
+
         cleaned_code = "\n".join(lines).strip()
 
-    cleaned_code = cleaned_code.replace("```python", "").replace("```", "").replace("`", "")
-    generated_output_path.write_text(cleaned_code, encoding="utf-8")
-    print(prompt)
+    return cleaned_code.replace("```python", "").replace("```", "").replace("`", "")
